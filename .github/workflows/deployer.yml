@@ -1,0 +1,59 @@
+# Construit le site et le copie sur le VPS.
+#
+# Se lance :
+# - à chaque modification de main ;
+# - toutes les 6 heures, pour reprendre les nouvelles versions des outils ;
+# - à la main (onglet Actions › Déployer le site › Run workflow).
+#
+# Secrets à créer dans Settings › Secrets and variables › Actions (voir deploy/LISEZMOI.md) :
+#   VPS_HOTE   l'adresse du VPS          VPS_UTILISATEUR  le compte SSH
+#   VPS_CLE    la clé SSH privée          VPS_DOSSIER      le dossier servi par nginx
+#   VPS_PORT   (facultatif) le port SSH, 22 par défaut
+# Tant qu'ils n'existent pas, le site est construit mais pas envoyé.
+
+name: Déployer le site
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: deploiement
+  cancel-in-progress: false
+
+jobs:
+  deployer:
+    runs-on: ubuntu-latest
+    env:
+      VPS_HOTE: ${{ secrets.VPS_HOTE }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Construire (avec les versions des outils)
+        run: npm run build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Envoyer sur le VPS
+        if: ${{ env.VPS_HOTE != '' }}
+        env:
+          VPS_UTILISATEUR: ${{ secrets.VPS_UTILISATEUR }}
+          VPS_CLE: ${{ secrets.VPS_CLE }}
+          VPS_DOSSIER: ${{ secrets.VPS_DOSSIER }}
+          VPS_PORT: ${{ secrets.VPS_PORT || '22' }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$VPS_CLE" > ~/.ssh/cle
+          chmod 600 ~/.ssh/cle
+          ssh-keyscan -p "$VPS_PORT" "$VPS_HOTE" >> ~/.ssh/known_hosts 2>/dev/null
+          rsync -az --delete -e "ssh -i ~/.ssh/cle -p $VPS_PORT" dist/ "$VPS_UTILISATEUR@$VPS_HOTE:$VPS_DOSSIER/"

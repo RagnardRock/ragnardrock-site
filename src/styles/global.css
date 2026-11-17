@@ -1,0 +1,250 @@
+/* Verre sombre et minimaliste, comme les outils de l'Atelier. */
+
+:root {
+  --fond: #0b0c12;
+  --fond-2: #11131b;
+  --verre: rgba(255, 255, 255, 0.045);
+  --verre-fort: rgba(255, 255, 255, 0.08);
+  --bord: rgba(255, 255, 255, 0.09);
+  --bord-fort: rgba(255, 255, 255, 0.16);
+  --texte: #c9cbd6;
+  --texte-fort: #f4f5fa;
+  --discret: #8a8d9c;
+  --accent: #5fd4a8;
+  --accent-2: #3fc6d0;
+  --rayon: 16px;
+  --rayon-petit: 10px;
+  --ombre: 0 18px 50px rgba(0, 0, 0, 0.45);
+  --flou: blur(18px) saturate(140%);
+  --police: 'Inter Variable', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --police-runes: 'Noto Sans Runic', 'Segoe UI Historic', 'Segoe UI Symbol', sans-serif;
+  --largeur: 1200px;
+  --largeur-large: 1680px;
+  --gouttiere: clamp(16px, 4vw, 48px);
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--fond);
+  color: var(--texte);
+  font-family: var(--police);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  color: var(--texte-fort);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.5em;
+}
+
+h1 {
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 650;
+}
+
+h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+p {
+  margin: 0 0 1em;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.rune {
+  font-family: var(--police-runes);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Mise en page */
+
+.page {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--largeur);
+  margin: 0 auto;
+  padding: 0 var(--gouttiere) 80px;
+}
+
+.page.large {
+  max-width: var(--largeur-large);
+}
+
+.section {
+  margin-top: clamp(48px, 8vw, 96px);
+}
+
+.chapeau {
+  color: var(--discret);
+  font-size: 1.1rem;
+  max-width: 60ch;
+}
+
+.surtitre {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--discret);
+  margin-bottom: 12px;
+}
+
+/* Verre */
+
+.verre {
+  background: var(--verre);
+  border: 1px solid var(--bord);
+  border-radius: var(--rayon);
+  backdrop-filter: var(--flou);
+  -webkit-backdrop-filter: var(--flou);
+}
+
+/* Boutons */
+
+.bouton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  border: 1px solid var(--bord-fort);
+  background: var(--verre-fort);
+  color: var(--texte-fort);
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.bouton:hover {
+  background: rgba(255, 255, 255, 0.13);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.bouton.plein {
+  background: var(--degrade, linear-gradient(135deg, var(--accent), var(--accent-2)));
+  border-color: transparent;
+  color: #0b0c12;
+}
+
+.bouton.plein:hover {
+  filter: brightness(1.08);
+}
+
+.bouton small {
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.puce {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--bord);
+  background: var(--verre);
+  color: var(--texte);
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.puce[aria-pressed='true'] {
+  background: var(--verre-fort);
+  border-color: var(--bord-fort);
+  color: var(--texte-fort);
+}
+
+.version {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.8rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: var(--verre-fort);
+  color: var(--texte-fort);
+  white-space: nowrap;
+}
+
+/* Notes de version venues de GitHub */
+
+.notes ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.notes li + li {
+  margin-top: 4px;
+}
+
+.notes p:last-child {
+  margin-bottom: 0;
+}
+
+.notes code {
+  font-size: 0.88em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: var(--verre-fort);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
