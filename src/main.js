@@ -5,6 +5,8 @@ import './styles/global.css';
 import App from './App.vue';
 import { router } from './router.js';
 import { chargerReleases } from './data/releases.js';
+import { installerOeufs } from './oeufs/oeufs.js';
 
 chargerReleases();
+installerOeufs();
 createApp(App).use(router).mount('#app');
