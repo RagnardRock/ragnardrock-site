@@ -40,7 +40,10 @@ const liens = [
   gap: 16px;
   padding: 8px 10px 8px 16px;
   border-radius: 999px;
-  background: rgba(14, 15, 22, 0.6);
+  background: rgba(14, 15, 22, 0.94);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
 .marque {
