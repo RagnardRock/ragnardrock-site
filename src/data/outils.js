@@ -25,7 +25,7 @@ export const OUTILS = [
     prefixe: 'atelier-v',
     accroche: 'Le hub qui installe, lance et met à jour tous les outils.',
     description:
-      'Le point de départ de tous les autres outils. Atelier les installe d\'un clic, les tient à jour et signale chaque nouvelle version. Entre deux projets, il garde l\'essentiel à portée de main : notes, projets récents, couleurs, calendrier et minuteurs.',
+      'Un hub pour tous les autres outils qui les tient à jour et signale chaque nouvelle version. Entre deux projets, il garde l\'essentiel à portée de main : notes, projets récents, couleurs, calendrier et minuteurs.',
     points: [
       'Installe, met à jour et désinstalle les outils',
       'Widgets : notes, projets, presse-papiers, minuteurs, calendrier',
@@ -68,7 +68,7 @@ export const OUTILS = [
     prefixe: 'skald-v',
     accroche: 'Retouche d\'images et de logos, compatible PSD.',
     description:
-      'La retouche d\'images au quotidien, sans sortir l\'artillerie lourde. Skald ouvre les fichiers Photoshop avec leurs calques, permet de détourer, recadrer et ajouter du texte, puis réenregistre en PSD ou exporte pour le web.',
+      'Un outil performant de retouche d\'images. Il ouvre les fichiers Photoshop avec leurs calques, permet de détourer, recadrer et ajouter du texte, puis réenregistre en PSD ou exporte pour le web.',
     points: [
       'Calques, calques de réglage, modes de fusion',
       'Divers outils de sélection',
@@ -90,7 +90,7 @@ export const OUTILS = [
     prefixe: 'brokk-v',
     accroche: 'Export d\'images aux tailles et formats du web.',
     description:
-      'Le dernier maillon entre le graphisme et le site. On lui donne un logo ou un PSD, il en tire d\'un coup toutes les images dont un projet web a besoin, aux bonnes tailles et dans les bons formats.',
+      'Le dernier maillon entre le graphisme et le site. On lui donne un logo ou un PSD, il en tire toutes les images dont un projet web a besoin, aux bonnes tailles et dans les bons formats.',
     points: [
       'Favicons et icônes d\'application',
       'Images responsives en plusieurs largeurs',
@@ -111,7 +111,7 @@ export const OUTILS = [
     prefixe: 'tafl-v',
     accroche: 'Éditeur de jeu : tuiles, cartes, événements et règles.',
     description:
-      'L\'atelier du créateur de jeux. Tafl sert à dessiner le monde tuile par tuile, puis à lui donner vie : personnages, dialogues, quêtes, objets et règles. Les règles se changent selon le genre : aventure façon Pokémon, JRPG, jeu de rôle sur table, action ou survivor.',
+      'Le créateur de jeux. Tafl sert à dessiner le monde tuile par tuile, puis à lui donner vie : personnages, dialogues, quêtes, objets et règles. Les règles se changent selon le genre : aventure façon creature catcher, JRPG, jeu de rôle sur table, action ou survivor.',
     points: [
       'Tuiles animées, tampons et cartes du monde',
       'Événements en blocs avec aperçu des dialogues',
@@ -155,7 +155,7 @@ export const OUTILS = [
     prefixe: 'mimir-v',
     accroche: 'Lecteur de documents : PDF à annoter et signer, EPUB, BD, Word.',
     description:
-      'Un lecteur pour tous les documents du quotidien. Les PDF s\'y surlignent, s\'y remplissent et s\'y signent, et les livres numériques, bandes dessinées et fichiers Word s\'ouvrent dans la même fenêtre.',
+      'Un lecteur pour tous les documents. Les PDF s\'y surlignent, s\'y remplissent et s\'y signent, et les livres numériques, bandes dessinées et fichiers Word s\'ouvrent dans la même fenêtre.',
     points: [
       'Surligner, annoter et remplir les formulaires PDF',
       'Signature dessinée, tapée ou importée',
