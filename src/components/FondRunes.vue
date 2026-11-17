@@ -32,7 +32,7 @@ function placer() {
         x: x + (hasard() - 0.5) * 10,
         y: y + (hasard() - 0.5) * 10,
         g: FUTHARK[Math.floor(hasard() * FUTHARK.length)],
-        a: 0.035 + hasard() * 0.04,
+        a: 0.07 + hasard() * 0.06,
       });
     }
   }
