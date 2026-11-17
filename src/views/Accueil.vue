@@ -15,6 +15,23 @@ const NOM = [
   ['ᚱ', 'R'], ['ᛟ', 'o'], ['ᚲ', 'c'], ['ᚲ', 'k'],
 ];
 const traduit = ref(false);
+
+// Une couleur unie par signe, prise le long du dégradé vert → turquoise → violet.
+// (Un vrai dégradé sur le texte, avec background-clip, ignore la transparence des lettres
+// dans certains navigateurs : les deux mots restaient visibles en même temps.)
+const ETAPES = [
+  [0, [180, 245, 162]],
+  [0.45, [63, 198, 208]],
+  [1, [155, 107, 255]],
+];
+function couleur(i) {
+  const t = i / (NOM.length - 1);
+  const k = t <= ETAPES[1][0] ? 0 : 1;
+  const [t0, a] = ETAPES[k];
+  const [t1, b] = ETAPES[k + 1];
+  const u = (t - t0) / (t1 - t0);
+  return `rgb(${a.map((v, j) => Math.round(v + (b[j] - v) * u)).join(', ')})`;
+}
 </script>
 
 <template>
@@ -30,10 +47,10 @@ const traduit = ref(false);
         @click="traduit = !traduit"
       >
         <span class="ligne runes-nom" aria-hidden="true">
-          <span v-for="([r], i) in NOM" :key="i" class="rune" :style="{ '--i': i }">{{ r }}</span>
+          <span v-for="([r], i) in NOM" :key="i" class="rune" :style="{ '--i': i, color: couleur(i) }">{{ r }}</span>
         </span>
         <span class="ligne latin" aria-hidden="true">
-          <span v-for="([, l], i) in NOM" :key="i" :style="{ '--i': i }">{{ l }}</span>
+          <span v-for="([, l], i) in NOM" :key="i" :style="{ '--i': i, color: couleur(i) }">{{ l }}</span>
         </span>
       </h1>
       <p class="chapeau">
@@ -96,10 +113,6 @@ const traduit = ref(false);
   letter-spacing: 0;
   cursor: default;
   user-select: none;
-  background: linear-gradient(120deg, #b4f5a2, #3fc6d0 45%, #9b6bff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
   width: fit-content;
   max-width: 100%;
 }
@@ -118,9 +131,6 @@ const traduit = ref(false);
 
 .ligne > span {
   display: inline-block;
-  background: inherit;
-  -webkit-background-clip: text;
-  background-clip: text;
   transition: opacity 0.2s, transform 0.2s, filter 0.2s;
 }
 
