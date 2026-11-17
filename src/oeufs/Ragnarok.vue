@@ -12,19 +12,23 @@ const classeTexte = ref('');
 
 const PROPHETIE = [
   [0, 'Le cor Gjallarhorn retentit.'],
-  [1.4, 'Fenrir brise sa chaîne.'],
-  [2.8, 'Le serpent du monde sort des eaux.'],
-  [4.2, 'Surtr embrase le monde.'],
-  [7.35, 'ᚱᚨᚷᚾᚨᚱᛟᚲ', 'runes'],
-  [8.5, 'Tout s\'achève.'],
-  [9.4, 'Le monde renaît, vert et neuf.', 'renouveau'],
-  [11.2, ''],
+  [1.3, 'Fenrir brise sa chaîne.'],
+  [3.0, 'Jörmungandr sort des eaux.'],
+  [4.8, 'Surtr embrase le monde.'],
+  [7.75, 'ᚱᚨᚷᚾᚨᚱᛟᚲ', 'runes'],
+  [8.9, 'Tout s\'achève.'],
+  [9.8, 'Le monde renaît, vert et neuf.', 'renouveau'],
+  [11.9, ''],
 ];
-const CHOCS = [0, 1.4, 2.8, 4.2];
-const CHUTE = 4.2;
-const ECLAIR = 7;
-const RENOUVEAU = 9.4;
-const FIN = 12;
+const RUPTURE = 2.5; // Gleipnir cède
+const SERPENT = 3.0;
+const DUREE_SERPENT = 3.2;
+const CHOCS = [0, RUPTURE, 4.8];
+const CHUTE = 4.8;
+const ECLAIR = 7.4;
+const RENOUVEAU = 9.8;
+const FONDU = 12.2; // le voile s'efface en douceur avant de rendre la page
+const FIN = 13.6;
 
 const calme = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let ctx, l, h, dpr, image, debut, dernier;
@@ -32,6 +36,9 @@ let morceaux = [];
 let braises = [];
 let meteores = [];
 let pousses = [];
+let gouttes = [];
+let maillons = null; // les morceaux de Gleipnir après la rupture
+const sortie = ref(false);
 let etape = 0;
 let tombes = false;
 let releves = false;
@@ -106,8 +113,8 @@ function secouer(force) {
 // --- Le dessin ---
 
 function feu(t) {
-  if (t < 2.8) return 0;
-  if (t < CHUTE) return 0.15 * entre(t, 2.8, CHUTE);
+  if (t < SERPENT) return 0;
+  if (t < CHUTE) return 0.15 * entre(t, SERPENT, CHUTE);
   if (t < ECLAIR) return 0.15 + 0.65 * entre(t, CHUTE, ECLAIR);
   return 0;
 }
@@ -137,40 +144,15 @@ function dessiner(t, dt) {
     ctx.stroke();
   }
 
-  // Les yeux de Fenrir, dans le noir.
-  const yeux = entre(t, 1.5, 2.1) * (1 - entre(t, 3.6, 4.2));
-  if (yeux > 0) {
-    const clignement = Math.abs(Math.sin(t * 1.7)) > 0.97 ? 0.15 : 1;
-    ctx.save();
-    ctx.shadowColor = '#ff2a2a';
-    ctx.shadowBlur = 40;
-    ctx.fillStyle = `rgba(255, 60, 40, ${yeux})`;
-    for (const cote of [-1, 1]) {
-      ctx.beginPath();
-      ctx.ellipse(l / 2 + cote * 70, h * 0.22, 26, 9 * clignement, cote * -0.25, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
+  // Les yeux de Fenrir s'ouvrent dans l'ombre, au-dessus de la chaîne.
+  if (t >= 1.1 && t < 4.4) yeux(t);
 
-  // Le serpent du monde : une longue ondulation qui sort du bas de l'écran.
-  const serpent = entre(t, 2.8, 3.8) * (1 - entre(t, 5, 6));
-  if (serpent > 0) {
-    ctx.save();
-    ctx.lineCap = 'round';
-    const base = h + 40 - serpent * h * 0.3;
-    for (const [largeur, couleur] of [[46, '#0d2a26'], [30, '#1d5a4c'], [6, 'rgba(120, 255, 210, 0.35)']]) {
-      ctx.lineWidth = largeur;
-      ctx.strokeStyle = couleur;
-      ctx.beginPath();
-      for (let x = -60; x <= l + 60; x += 12) {
-        const y = base + Math.sin(x / 120 - t * 3) * 60 + Math.sin(x / 47 + t) * 10;
-        x === -60 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-    ctx.restore();
-  }
+  // Gleipnir, la chaîne de Fenrir : elle se tend, vibre, puis se rompt en son milieu.
+  if (t >= 0.9 && t < 4.4) chaine(t, dt);
+
+  // Jörmungandr, le serpent du monde, jaillit des eaux et traverse l'écran.
+  if (t >= SERPENT && t < SERPENT + DUREE_SERPENT + 0.5) serpent(t, dt);
+  dessinerGouttes(dt);
 
   // Le feu de Surtr.
   const f = feu(t);
@@ -280,6 +262,363 @@ function dessiner(t, dt) {
   pousses = pousses.filter((p) => p.t > 0);
 }
 
+// --- Fenrir ---
+
+function yeux(t) {
+  const cx = l / 2;
+  const cy = h * 0.14;
+  const ecart = Math.min(150, l * 0.11);
+  const taille = Math.min(70, l * 0.05);
+  const presence = entre(t, 1.1, 1.9) * (1 - entre(t, 3.6, 4.4));
+  // Les paupières s'ouvrent lentement, se plissent quand la chaîne cède.
+  const ouverture = entre(t, 1.4, 2.2) * (t > RUPTURE ? 0.55 + 0.45 * entre(t, RUPTURE + 0.4, RUPTURE + 1) : 1);
+  const colere = entre(t, RUPTURE, RUPTURE + 0.3);
+
+  // L'ombre de la bête : une masse sombre d'où sortent les yeux.
+  const ombre = ctx.createRadialGradient(cx, cy, 0, cx, cy, ecart * 3);
+  ombre.addColorStop(0, `rgba(0, 0, 0, ${0.75 * presence})`);
+  ombre.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = ombre;
+  ctx.fillRect(cx - ecart * 3, cy - ecart * 3, ecart * 6, ecart * 6);
+
+  for (const cote of [-1, 1]) {
+    const x = cx + cote * ecart;
+    ctx.save();
+    ctx.translate(x, cy);
+    ctx.rotate(cote * -0.22); // en amande, coin intérieur plus bas : un regard menaçant
+    ctx.globalAlpha = presence;
+    // Le halo.
+    const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, taille * 2.2);
+    halo.addColorStop(0, `rgba(255, ${Math.round(170 - 110 * colere)}, 40, 0.35)`);
+    halo.addColorStop(1, 'rgba(255, 80, 0, 0)');
+    ctx.fillStyle = halo;
+    ctx.fillRect(-taille * 2.2, -taille * 2.2, taille * 4.4, taille * 4.4);
+    // L'amande de l'œil, découpée par les paupières.
+    const hauteur = taille * 0.42 * ouverture;
+    if (hauteur > 0.5) {
+      ctx.beginPath();
+      ctx.moveTo(-taille, 0);
+      ctx.quadraticCurveTo(0, -hauteur * 2, taille, 0);
+      ctx.quadraticCurveTo(0, hauteur * 2, -taille, 0);
+      ctx.save();
+      ctx.clip();
+      const iris = ctx.createRadialGradient(0, 0, 0, 0, 0, taille);
+      iris.addColorStop(0, '#fff3c4');
+      iris.addColorStop(0.35, `rgb(255, ${Math.round(190 - 120 * colere)}, 40)`);
+      iris.addColorStop(1, `rgb(${Math.round(150 + 60 * colere)}, 40, 10)`);
+      ctx.fillStyle = iris;
+      ctx.fillRect(-taille, -taille, taille * 2, taille * 2);
+      // La pupille fendue, qui se resserre de colère.
+      ctx.fillStyle = '#0a0300';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, taille * (0.14 - 0.07 * colere), taille * 0.6, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.restore();
+  }
+}
+
+// --- Gleipnir ---
+
+const ESPACE_MAILLON = 30;
+
+function dessinerMaillon(x, y, angle, face, alpha) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(angle);
+  ctx.globalAlpha = alpha;
+  ctx.lineCap = 'round';
+  for (const [largeur, couleur] of [[9, '#16181f'], [5, '#8d93a6'], [1.6, '#e6e9f2']]) {
+    ctx.lineWidth = largeur;
+    ctx.strokeStyle = couleur;
+    ctx.beginPath();
+    if (face) ctx.ellipse(0, 0, 19, 9, 0, 0, Math.PI * 2);
+    else {
+      ctx.moveTo(-19, 0);
+      ctx.lineTo(19, 0);
+    }
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function chaine(t, dt) {
+  const y0 = h * 0.27;
+  const n = Math.ceil((l + 80) / ESPACE_MAILLON);
+  const milieu = n / 2;
+  const apparition = entre(t, 0.9, 1.3);
+  const disparition = 1 - entre(t, 3.6, 4.4);
+  const alpha = apparition * disparition;
+
+  if (t < RUPTURE) {
+    // La chaîne se tend : elle vibre de plus en plus vite, de plus en plus fort.
+    const tension = entre(t, 1.3, RUPTURE);
+    for (let i = 0; i <= n; i++) {
+      const x = -40 + i * ESPACE_MAILLON;
+      const pres = 1 - Math.abs(i - milieu) / milieu;
+      const y = y0 + Math.sin(i * 0.9 + t * (20 + 50 * tension)) * tension * 5 * pres + (1 - tension) * 40 * Math.sin((i / n) * Math.PI);
+      dessinerMaillon(x, y, 0, i % 2 === 0, alpha);
+    }
+    return;
+  }
+
+  // Rupture : les maillons du milieu volent en éclats, les deux moitiés retombent en fouettant.
+  if (!maillons) {
+    maillons = [];
+    for (let i = Math.floor(milieu) - 2; i <= Math.floor(milieu) + 2; i++) {
+      maillons.push({ x: -40 + i * ESPACE_MAILLON, y: y0, vx: hasard(-500, 500), vy: hasard(-600, -150), a: 0, va: hasard(-14, 14), face: i % 2 === 0 });
+    }
+  }
+  const chute = 1 - Math.pow(1 - entre(t, RUPTURE, RUPTURE + 1.1), 3);
+  const fouet = Math.sin(entre(t, RUPTURE, RUPTURE + 1.1) * Math.PI) * 0.35;
+  const moitie = Math.floor(milieu) - 3;
+  const longueur = moitie * ESPACE_MAILLON;
+  for (const cote of [-1, 1]) {
+    const ax = cote < 0 ? -40 : l + 40;
+    for (let k = 0; k <= moitie; k++) {
+      const d = k * ESPACE_MAILLON;
+      const a = (chute * 1.35 + fouet * (d / longueur)) * (0.55 + 0.45 * (d / longueur));
+      const dx = Math.cos(a) * d * -cote;
+      const dy = Math.sin(a) * d;
+      dessinerMaillon(ax + dx, y0 + dy, cote < 0 ? a : -a, k % 2 === 0, alpha);
+    }
+  }
+  for (const m of maillons) {
+    m.vy += 900 * dt;
+    m.x += m.vx * dt;
+    m.y += m.vy * dt;
+    m.a += m.va * dt;
+    dessinerMaillon(m.x, m.y, m.a, m.face, alpha);
+  }
+  // L'étincelle de la rupture.
+  const eclat = 1 - entre(t, RUPTURE, RUPTURE + 0.5);
+  if (eclat > 0) {
+    const g = ctx.createRadialGradient(l / 2, y0, 0, l / 2, y0, 220);
+    g.addColorStop(0, `rgba(255, 240, 210, ${eclat})`);
+    g.addColorStop(1, 'rgba(255, 120, 40, 0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(l / 2 - 220, y0 - 220, 440, 440);
+  }
+}
+
+// --- Jörmungandr ---
+
+function trajet(s, R) {
+  // Un grand bond hors de l'eau, de gauche à droite, avec une lente ondulation.
+  const u = Math.min(1, Math.max(0, s));
+  return {
+    x: -R * 4 + s * (l + R * 8),
+    y: h + R * 2.4 - Math.sin(u * Math.PI) * h * 0.6 + Math.sin(s * 9) * R * 0.5,
+  };
+}
+
+function serpent(t, dt) {
+  const R = Math.min(64, Math.max(28, h * 0.065));
+  const tete = (t - SERPENT) / DUREE_SERPENT;
+  const N = 140;
+  const pas = 0.0055;
+
+  // L'échine, de la queue vers la tête, avec l'épaisseur et la direction du « ciel » à chaque point.
+  const echine = [];
+  for (let k = N; k >= 0; k--) echine.push({ ...trajet(tete - k * pas, R), u: k / N });
+  for (let i = 0; i < echine.length; i++) {
+    const a = echine[Math.max(0, i - 1)];
+    const b = echine[Math.min(echine.length - 1, i + 1)];
+    const dir = Math.atan2(b.y - a.y, b.x - a.x);
+    let nx = Math.sin(dir);
+    let ny = -Math.cos(dir);
+    if (ny > 0) {
+      nx = -nx;
+      ny = -ny;
+    }
+    const p = echine[i];
+    p.dir = dir;
+    p.nx = nx;
+    p.ny = ny;
+    // Même épaisseur sur tout le corps, puis une queue qui s'effile sur le dernier tiers.
+    p.r = Math.max(2, R * Math.pow(Math.min(1, (1 - p.u) / 0.4), 0.85));
+  }
+
+  const trait = (decalage, largeur, couleur) => {
+    ctx.strokeStyle = couleur;
+    ctx.lineCap = 'round';
+    for (let i = 1; i < echine.length; i++) {
+      const a = echine[i - 1];
+      const b = echine[i];
+      ctx.lineWidth = largeur(b);
+      ctx.beginPath();
+      ctx.moveTo(a.x + a.nx * decalage(a), a.y + a.ny * decalage(a));
+      ctx.lineTo(b.x + b.nx * decalage(b), b.y + b.ny * decalage(b));
+      ctx.stroke();
+    }
+  };
+
+  // Les nageoires du dos, derrière le corps.
+  ctx.fillStyle = '#0b2e29';
+  for (let i = 4; i < echine.length - 6; i += 5) {
+    const p = echine[i];
+    if (p.r < 6) continue;
+    const cx = Math.cos(p.dir);
+    const cy = Math.sin(p.dir);
+    ctx.beginPath();
+    ctx.moveTo(p.x + p.nx * p.r * 0.6 - cx * p.r * 0.5, p.y + p.ny * p.r * 0.6 - cy * p.r * 0.5);
+    ctx.lineTo(p.x + p.nx * p.r * 1.55 + cx * p.r * 0.25, p.y + p.ny * p.r * 1.55 + cy * p.r * 0.25);
+    ctx.lineTo(p.x + p.nx * p.r * 0.6 + cx * p.r * 0.5, p.y + p.ny * p.r * 0.6 + cy * p.r * 0.5);
+    ctx.fill();
+  }
+
+  // Le corps : contour, teinte de base, ventre clair, reflet sur le dos.
+  trait(() => 0, (p) => p.r * 2 + 5, '#041513');
+  trait(() => 0, (p) => p.r * 2, '#1b5f51');
+  trait((p) => -p.r * 0.58, (p) => p.r * 0.55, 'rgba(160, 190, 140, 0.45)');
+  trait((p) => p.r * 0.38, (p) => p.r * 0.5, 'rgba(84, 205, 165, 0.35)');
+
+  // Les écailles : des chevrons sombres le long du corps.
+  ctx.strokeStyle = 'rgba(4, 30, 26, 0.3)';
+  for (let i = 3; i < echine.length - 2; i += 3) {
+    const p = echine[i];
+    if (p.r < 5) continue;
+    ctx.lineWidth = Math.max(1, p.r * 0.07);
+    const cx = Math.cos(p.dir) * p.r * 0.3;
+    const cy = Math.sin(p.dir) * p.r * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(p.x + p.nx * p.r * 0.8 - cx, p.y + p.ny * p.r * 0.8 - cy);
+    ctx.lineTo(p.x + p.nx * p.r * 0.1, p.y + p.ny * p.r * 0.1);
+    ctx.lineTo(p.x - p.nx * p.r * 0.6 - cx, p.y - p.ny * p.r * 0.6 - cy);
+    ctx.stroke();
+  }
+
+  // Les gerbes d'eau là où le corps traverse la surface.
+  if (!calme) {
+    for (let i = 0; i < echine.length; i += 6) {
+      const p = echine[i];
+      if (Math.abs(p.y - h) < p.r && Math.random() < dt * 20) {
+        for (let j = 0; j < 4; j++) gouttes.push({ x: p.x + hasard(-p.r, p.r), y: h, vx: hasard(-120, 120), vy: hasard(-520, -220), t: hasard(0.6, 1.1) });
+      }
+    }
+  }
+
+  // La tête, dans le prolongement du cou.
+  const b = echine[echine.length - 1];
+  const haut = Math.cos(b.dir) >= 0 ? 1 : -1; // garde le dessus de la tête vers le ciel
+  const gueule = 0.28 + 0.18 * Math.sin(t * 6);
+  ctx.save();
+  ctx.translate(b.x, b.y);
+  ctx.rotate(b.dir);
+  ctx.scale(1, haut);
+  ctx.lineJoin = 'round';
+  // Cornes vers l'arrière.
+  ctx.fillStyle = '#0b2e29';
+  for (const [x0, lg, ht] of [[R * 0.1, R * 1.3, R * 1.15], [R * 0.55, R * 0.9, R * 0.95]]) {
+    ctx.beginPath();
+    ctx.moveTo(x0, -R * 0.6);
+    ctx.quadraticCurveTo(x0 - lg * 0.5, -ht, x0 - lg, -ht * 1.05);
+    ctx.lineTo(x0 + R * 0.3, -R * 0.45);
+    ctx.fill();
+  }
+  // Mâchoire inférieure, qui s'ouvre et se referme.
+  ctx.save();
+  ctx.translate(R * 0.5, R * 0.25);
+  ctx.rotate(gueule);
+  ctx.fillStyle = '#041513';
+  ctx.beginPath();
+  ctx.moveTo(-R * 0.7, -R * 0.05);
+  ctx.quadraticCurveTo(R * 0.6, R * 0.55, R * 1.9, R * 0.02);
+  ctx.lineTo(-R * 0.7, -R * 0.3);
+  ctx.fill();
+  ctx.fillStyle = '#b0cd96';
+  ctx.beginPath();
+  ctx.moveTo(-R * 0.6, R * 0.02);
+  ctx.quadraticCurveTo(R * 0.6, R * 0.42, R * 1.75, R * 0.0);
+  ctx.lineTo(R * 1.6, -R * 0.06);
+  ctx.lineTo(-R * 0.6, -R * 0.12);
+  ctx.fill();
+  ctx.fillStyle = '#f2ead8';
+  for (let i = 0; i < 4; i++) {
+    const fx = R * (0.1 + i * 0.38);
+    ctx.beginPath();
+    ctx.moveTo(fx, -R * 0.08);
+    ctx.lineTo(fx + R * 0.09, -R * (i === 0 ? 0.42 : 0.26));
+    ctx.lineTo(fx + R * 0.18, -R * 0.08);
+    ctx.fill();
+  }
+  ctx.restore();
+  // Crâne et mâchoire supérieure : même hauteur que le cou à l'arrière, puis le museau qui s'affine.
+  const crane = () => {
+    ctx.beginPath();
+    ctx.moveTo(-R * 0.4, R);
+    ctx.lineTo(-R * 0.4, -R);
+    ctx.quadraticCurveTo(R * 0.5, -R * 1.05, R * 1.1, -R * 0.62);
+    ctx.quadraticCurveTo(R * 1.9, -R * 0.38, R * 2.45, R * 0.02);
+    ctx.quadraticCurveTo(R * 1.6, R * 0.3, R * 0.5, R * 0.32);
+    ctx.quadraticCurveTo(R * 0.1, R * 0.6, -R * 0.4, R);
+    ctx.closePath();
+  };
+  ctx.strokeStyle = '#041513';
+  ctx.lineWidth = 5;
+  crane();
+  ctx.stroke();
+  const g = ctx.createLinearGradient(0, -R, 0, R * 0.5);
+  g.addColorStop(0, '#54cda5');
+  g.addColorStop(0.45, '#1b5f51');
+  g.addColorStop(1, '#14493f');
+  ctx.fillStyle = g;
+  crane();
+  ctx.fill();
+  // Arcade sourcilière au-dessus de l'œil, et narine.
+  ctx.strokeStyle = 'rgba(4, 30, 26, 0.7)';
+  ctx.lineWidth = R * 0.08;
+  ctx.beginPath();
+  ctx.moveTo(R * 0.25, -R * 0.62);
+  ctx.quadraticCurveTo(R * 0.75, -R * 0.78, R * 1.15, -R * 0.5);
+  ctx.stroke();
+  ctx.fillStyle = '#041513';
+  ctx.beginPath();
+  ctx.ellipse(R * 2.05, -R * 0.12, R * 0.07, R * 0.04, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  // Dents du haut.
+  ctx.fillStyle = '#f2ead8';
+  for (let i = 0; i < 5; i++) {
+    const fx = R * (0.7 + i * 0.32);
+    const lg = i === 0 ? 0.42 : 0.24;
+    ctx.beginPath();
+    ctx.moveTo(fx, R * 0.26 - i * R * 0.04);
+    ctx.lineTo(fx + R * 0.08, R * (0.26 + lg) - i * R * 0.04);
+    ctx.lineTo(fx + R * 0.17, R * 0.24 - i * R * 0.04);
+    ctx.fill();
+  }
+  // L'œil, fendu, qui luit.
+  ctx.shadowColor = '#ffd23a';
+  ctx.shadowBlur = 18;
+  ctx.fillStyle = '#ffd23a';
+  ctx.beginPath();
+  ctx.ellipse(R * 0.75, -R * 0.38, R * 0.2, R * 0.12, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.shadowBlur = 0;
+  ctx.fillStyle = '#1a0d00';
+  ctx.beginPath();
+  ctx.ellipse(R * 0.75, -R * 0.38, R * 0.045, R * 0.11, -0.15, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function dessinerGouttes(dt) {
+  ctx.fillStyle = 'rgba(190, 235, 255, 0.8)';
+  for (const g of gouttes) {
+    g.t -= dt;
+    g.vy += 1100 * dt;
+    g.x += g.vx * dt;
+    g.y += g.vy * dt;
+    ctx.globalAlpha = Math.min(1, g.t * 2);
+    ctx.beginPath();
+    ctx.arc(g.x, g.y, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  gouttes = gouttes.filter((g) => g.t > 0 && g.y < h + 20);
+}
+
 // Intensité des secousses : un à-coup à chaque grand moment, puis le grondement de l'incendie.
 function force(t) {
   let s = 0;
@@ -303,6 +642,7 @@ function boucle(maintenant) {
   if (!tombes && t >= CHUTE) fairetomber();
   if (!releves && t >= RENOUVEAU) releverPage();
   if (!releves) secouer(force(t));
+  if (t >= FONDU) sortie.value = true;
 
   dessiner(t, dt);
   if (t >= FIN) terminer();
@@ -315,7 +655,6 @@ function terminer() {
   nettoyerPage();
   journal.value.push({ t: '… et le monde renaît, vert et neuf. Le site aussi.', c: 'discret' });
   oeufs.ragnarok = false;
-  oeufs.terminal = true;
 }
 
 function clavier(e) {
@@ -340,7 +679,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="ragnarok" role="dialog" aria-modal="true" aria-label="Ragnarök">
+  <div class="ragnarok" :class="{ sortie }" role="dialog" aria-modal="true" aria-label="Ragnarök">
     <canvas ref="toile" class="toile" aria-hidden="true"></canvas>
     <Transition name="phrase" mode="out-in">
       <p v-if="texte" :key="texte" class="phrase" :class="classeTexte" aria-live="assertive">{{ texte }}</p>
@@ -355,6 +694,11 @@ onBeforeUnmount(() => {
   inset: 0;
   z-index: 95;
   pointer-events: none;
+}
+
+.ragnarok.sortie {
+  opacity: 0;
+  transition: opacity 1.4s ease;
 }
 
 .toile {
