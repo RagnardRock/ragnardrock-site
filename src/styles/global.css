@@ -248,3 +248,54 @@ img {
     animation: none !important;
   }
 }
+
+/* Mode pixel (commande « pixel » du terminal caché) : police pixel, angles droits,
+   ombres dures au lieu du verre flou. */
+
+html.pixel {
+  --police: 'Pixelify Sans', ui-monospace, monospace;
+  --flou: none;
+  --rayon: 0;
+  --rayon-petit: 0;
+  --ombre: 6px 6px 0 rgba(0, 0, 0, 0.6);
+}
+
+html.pixel *,
+html.pixel *::before,
+html.pixel *::after {
+  border-radius: 0 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+html.pixel body {
+  -webkit-font-smoothing: none;
+  font-smooth: never;
+}
+
+html.pixel h1,
+html.pixel h2,
+html.pixel h3 {
+  letter-spacing: 0;
+}
+
+html.pixel .verre {
+  background: #13151f;
+  border: 2px solid var(--bord-fort);
+  box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+}
+
+html.pixel .bouton,
+html.pixel .puce {
+  border-width: 2px;
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.6);
+}
+
+html.pixel .bouton:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.6);
+}
+
+html.pixel img {
+  image-rendering: pixelated;
+}
