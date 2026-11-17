@@ -285,7 +285,7 @@ function yeux(t) {
     const x = cx + cote * ecart;
     ctx.save();
     ctx.translate(x, cy);
-    ctx.rotate(cote * 0.22); // en amande, relevés vers l'extérieur
+    ctx.rotate(cote * -0.22); // en amande, coin intérieur plus bas : un regard menaçant
     ctx.globalAlpha = presence;
     // Le halo.
     const halo = ctx.createRadialGradient(0, 0, 0, 0, 0, taille * 2.2);
