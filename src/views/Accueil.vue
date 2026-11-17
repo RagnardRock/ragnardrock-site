@@ -121,8 +121,25 @@ const traduit = ref(false);
   background: inherit;
   -webkit-background-clip: text;
   background-clip: text;
-  transition: opacity 0.35s, transform 0.35s, filter 0.35s;
-  transition-delay: calc(var(--i) * 35ms);
+  transition: opacity 0.2s, transform 0.2s, filter 0.2s;
+}
+
+/* Les signes qui partent s'effacent d'abord ; ceux qui arrivent attendent qu'ils aient disparu,
+   pour que les deux mots (de largeurs différentes) ne se chevauchent pas. */
+.runes-nom > span {
+  transition-delay: calc(360ms + var(--i) * 15ms);
+}
+
+.latin > span {
+  transition-delay: calc(var(--i) * 15ms);
+}
+
+.traduit .runes-nom > span {
+  transition-delay: calc(var(--i) * 15ms);
+}
+
+.traduit .latin > span {
+  transition-delay: calc(360ms + var(--i) * 15ms);
 }
 
 .ligne.runes-nom > span {
