@@ -90,7 +90,78 @@ const COMMANDES = {
   sudo: { faire: () => dire('Bien essayé.', 'erreur') },
   rm: { faire: () => dire('Les runes sont gravées dans la pierre. Rien n\'a été effacé.', 'erreur') },
   odin: { faire: () => dire('ᚨ Ansuz, la rune d\'Odin, celle de la parole et de la sagesse.', 'runes') },
+  oracle: { faire: oracle },
+  tirage: { faire: oracle },
+  ragnarok: { faire: ragnarok },
 };
+
+// Le tirage d'une rune, comme on consultait les runes : une rune, son nom, ce qu'elle annonce.
+const ORACLE = [
+  ['ᚠ', 'Fehu', 'le bétail, la richesse. Ce que tu bâtis aujourd\'hui te nourrira demain.'],
+  ['ᚢ', 'Uruz', 'l\'aurochs, la force brute. Tu as plus d\'énergie que tu ne le crois.'],
+  ['ᚦ', 'Thurisaz', 'le géant, l\'épine. Un obstacle se dresse : contourne-le, ne le frappe pas.'],
+  ['ᚨ', 'Ansuz', 'le dieu, la parole. Un message important va arriver.'],
+  ['ᚱ', 'Raido', 'le voyage. Le chemin compte plus que l\'arrivée.'],
+  ['ᚲ', 'Kaunan', 'la torche. Une idée va éclairer ce qui restait obscur.'],
+  ['ᚷ', 'Gebo', 'le don. Ce que tu donnes te reviendra.'],
+  ['ᚹ', 'Wunjo', 'la joie. Savoure ce qui fonctionne.'],
+  ['ᚺ', 'Hagalaz', 'la grêle. Une tempête passe, elle laissera le sol plus fertile.'],
+  ['ᚾ', 'Naudiz', 'le besoin. La contrainte forge l\'ingéniosité.'],
+  ['ᛁ', 'Isa', 'la glace. Le moment est à l\'attente, pas à l\'action.'],
+  ['ᛃ', 'Jera', 'l\'année, la récolte. Les efforts patients portent leurs fruits.'],
+  ['ᛇ', 'Eihwaz', 'l\'if. Tiens bon, tes racines sont profondes.'],
+  ['ᛈ', 'Perthro', 'le cornet à dés. Le hasard a son mot à dire.'],
+  ['ᛉ', 'Algiz', 'l\'élan, la protection. Tu es plus à l\'abri que tu ne le penses.'],
+  ['ᛊ', 'Sowilo', 'le soleil. La réussite est proche.'],
+  ['ᛏ', 'Tiwaz', 'le dieu Tyr. Le courage et la justice guident ta main.'],
+  ['ᛒ', 'Berkanan', 'le bouleau. Quelque chose de nouveau commence à pousser.'],
+  ['ᛖ', 'Ehwaz', 'le cheval. Avance avec un allié de confiance.'],
+  ['ᛗ', 'Mannaz', 'l\'homme. Les autres sont ta force.'],
+  ['ᛚ', 'Laguz', 'l\'eau. Suis ton intuition.'],
+  ['ᛜ', 'Ingwaz', 'la graine. Ce qui germe en silence va éclore.'],
+  ['ᛞ', 'Dagaz', 'le jour. Après la nuit, la percée.'],
+  ['ᛟ', 'Othala', 'l\'héritage. Ce que tu construis restera.'],
+];
+
+function oracle() {
+  const [rune, nom, sens] = ORACLE[Math.floor(Math.random() * ORACLE.length)];
+  dire('Les runes tombent sur le tissu…', 'discret');
+  plusTard(700, () => {
+    dire(rune, 'runes grande');
+    dire(`${nom} : ${sens}`);
+  });
+}
+
+// La fin du monde, en version courte.
+let enCours = false;
+function ragnarok() {
+  if (enCours) return dire('Patience, le monde n\'a pas fini de brûler.', 'erreur');
+  enCours = true;
+  const etapes = [
+    [0, 'Le cor Gjallarhorn retentit…', 'erreur'],
+    [900, 'Fenrir brise sa chaîne.', 'erreur'],
+    [1700, 'Le serpent du monde sort des eaux.', 'erreur'],
+    [2500, 'ᚱᚨᚷᚾᚨᚱᛟᚲ', 'runes grande'],
+  ];
+  for (const [t, texte, c] of etapes) plusTard(t, () => dire(texte, c));
+  plusTard(2500, () => document.documentElement.classList.add('ragnarok'));
+  plusTard(5000, () => {
+    document.documentElement.classList.remove('ragnarok');
+    dire('… et le monde renaît, vert et neuf. Le site aussi.', 'discret');
+    enCours = false;
+  });
+}
+
+const minuteurs = new Set();
+function plusTard(ms, f) {
+  const id = setTimeout(async () => {
+    minuteurs.delete(id);
+    f();
+    await nextTick();
+    if (sortie.value) sortie.value.scrollTop = sortie.value.scrollHeight;
+  }, ms);
+  minuteurs.add(id);
+}
 
 function dire(t, c = '') {
   lignes.value.push({ t, c });
@@ -144,7 +215,13 @@ onMounted(() => {
   avant = document.activeElement;
   champ.value?.focus();
 });
-onBeforeUnmount(() => avant?.focus?.());
+onBeforeUnmount(() => {
+  // Le terminal se ferme : les effets en cours s'arrêtent avec lui.
+  for (const id of minuteurs) clearTimeout(id);
+  document.documentElement.classList.remove('ragnarok');
+  enCours = false;
+  avant?.focus?.();
+});
 </script>
 
 <template>
@@ -271,6 +348,13 @@ onBeforeUnmount(() => avant?.focus?.());
   color: var(--accent-2);
   font-size: 1.1rem;
   letter-spacing: 0.15em;
+}
+
+.sortie .grande {
+  font-size: 2.6rem;
+  line-height: 1.3;
+  margin: 6px 0;
+  text-shadow: 0 0 18px var(--accent-2);
 }
 
 .invite {
