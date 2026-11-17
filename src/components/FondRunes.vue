@@ -16,6 +16,10 @@ let image = 0;
 let calme = false;
 
 function placer() {
+  // Sur mobile, les runes sont plus marquées : à petite taille, elles disparaissaient presque.
+  const mobile = window.matchMedia('(max-width: 760px)').matches;
+  const base = mobile ? 0.07 : 0.035;
+  const ecart = mobile ? 0.06 : 0.04;
   const c = toile.value;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
   c.width = innerWidth * dpr;
@@ -32,7 +36,7 @@ function placer() {
         x: x + (hasard() - 0.5) * 10,
         y: y + (hasard() - 0.5) * 10,
         g: FUTHARK[Math.floor(hasard() * FUTHARK.length)],
-        a: 0.07 + hasard() * 0.06,
+        a: base + hasard() * ecart,
       });
     }
   }
