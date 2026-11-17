@@ -80,16 +80,23 @@ const COMMANDES = {
   date: { resume: 'la date et l\'heure', faire: () => dire(new Date().toLocaleString('fr-FR', { dateStyle: 'full', timeStyle: 'short' })) },
   clear: { resume: 'vider l\'écran', faire: () => (lignes.value = []) },
   exit: { resume: 'fermer le terminal', faire: () => (oeufs.terminal = false) },
-  // Commandes cachées : pas dans « aide ».
+  // Commandes cachées : pas dans « aide », mais « secret » les liste.
+  secret: {
+    faire() {
+      dire('Commandes cachées :', 'discret');
+      for (const [nom, c] of Object.entries(COMMANDES)) if (c.secret) dire(`${nom.padEnd(10)} ${c.secret}`);
+      dire('Et hors du terminal : ↑ ↑ ↓ ↓ ← → ← → B A, n\'importe où sur le site.', 'discret');
+    },
+  },
   help: { faire: () => COMMANDES.aide.faire() },
-  whoami: { faire: () => dire('invité') },
-  echo: { faire: (arg) => dire(arg || '') },
-  sudo: { faire: () => dire('Bien essayé.', 'erreur') },
-  rm: { faire: () => dire('Les runes sont gravées dans la pierre. Rien n\'a été effacé.', 'erreur') },
-  odin: { faire: () => dire('ᚨ Ansuz, la rune d\'Odin, celle de la parole et de la sagesse.', 'runes') },
-  oracle: { faire: oracle },
+  whoami: { secret: 'qui es-tu ?', faire: () => dire('invité') },
+  echo: { secret: 'répète ce que tu écris', faire: (arg) => dire(arg || '') },
+  sudo: { secret: 'pour les audacieux', faire: () => dire('Bien essayé.', 'erreur') },
+  rm: { secret: 'efface tout… ou pas', faire: () => dire('Les runes sont gravées dans la pierre. Rien n\'a été effacé.', 'erreur') },
+  odin: { secret: 'la rune du Père de tout', faire: () => dire('ᚨ Ansuz, la rune d\'Odin, celle de la parole et de la sagesse.', 'runes') },
+  oracle: { secret: 'tire une rune et lis ton avenir (ou tirage)', faire: oracle },
   tirage: { faire: oracle },
-  ragnarok: { faire: ragnarok },
+  ragnarok: { secret: 'la fin du monde, et ce qui vient après', faire: ragnarok },
 };
 
 // Le tirage d'une rune, comme on consultait les runes : une rune, son nom, ce qu'elle annonce.
