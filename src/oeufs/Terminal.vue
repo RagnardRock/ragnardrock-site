@@ -204,6 +204,8 @@ let avant = null;
 onMounted(() => {
   avant = document.activeElement;
   champ.value?.focus();
+  // À la réouverture, on reprend en bas, sur les dernières lignes.
+  if (sortie.value) sortie.value.scrollTop = sortie.value.scrollHeight;
 });
 onBeforeUnmount(() => {
   // Le terminal se ferme : les effets en cours s'arrêtent avec lui.
