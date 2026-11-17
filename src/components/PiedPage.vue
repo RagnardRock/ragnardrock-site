@@ -1,7 +1,7 @@
 <template>
   <footer class="pied">
     <div class="interieur">
-      <span class="rune runes" aria-hidden="true">ᚱᚨᚷᚾᚨᚱ</span>
+      <span class="rune runes" aria-hidden="true">ᚱᚨᚷᚾᚨᚱᛞᚱᛟᚲᚲ</span>
       <span>© {{ new Date().getFullYear() }} RagnardRock</span>
     </div>
   </footer>
@@ -23,7 +23,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px 24px;
-  align-items: center;
+  /* Runes et lettres latines n'ont pas les mêmes proportions : on les cale sur la même ligne de base. */
+  align-items: baseline;
 }
 
 .runes {
