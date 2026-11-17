@@ -23,7 +23,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px 24px;
-  align-items: center;
+  /* Runes et lettres latines n'ont pas les mêmes proportions : on les cale sur la même ligne de base. */
+  align-items: baseline;
 }
 
 .runes {
