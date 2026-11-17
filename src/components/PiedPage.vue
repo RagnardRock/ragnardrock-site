@@ -1,7 +1,7 @@
 <template>
   <footer class="pied">
     <div class="interieur">
-      <span class="rune runes" aria-hidden="true">ᚱᚨᚷᚾᚨᚱ</span>
+      <span class="rune runes" aria-hidden="true">ᚱᚨᚷᚾᚨᚱᛞᚱᛟᚲᚲ</span>
       <span>© {{ new Date().getFullYear() }} RagnardRock</span>
     </div>
   </footer>
