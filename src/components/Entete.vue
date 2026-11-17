@@ -48,7 +48,8 @@ const liens = [
 
 .marque {
   display: flex;
-  align-items: center;
+  /* Runes et lettres latines n'ont pas les mêmes proportions : on les cale sur la même ligne de base. */
+  align-items: baseline;
   gap: 10px;
   color: var(--texte-fort);
   font-weight: 650;
@@ -56,7 +57,7 @@ const liens = [
 }
 
 .logo {
-  font-size: 1.35rem;
+  font-size: 1.2rem;
   background: linear-gradient(135deg, #b9a8ff, #5ec8ff);
   -webkit-background-clip: text;
   background-clip: text;
