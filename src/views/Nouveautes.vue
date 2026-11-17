@@ -76,15 +76,36 @@ function choisir(id) {
 }
 
 .filtres {
+  position: sticky;
+  top: 76px;
+  z-index: 5;
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
+  overflow-x: auto;
   padding: 10px 0;
   margin-bottom: 8px;
+  scrollbar-width: thin;
 }
 
 .filtres .puce {
-  flex-shrink: 0;
+  backdrop-filter: blur(12px);
+  background: rgba(20, 21, 30, 0.7);
+}
+
+.filtres .puce[aria-pressed='true'] {
+  background: rgba(60, 62, 80, 0.85);
+}
+
+/* Sur mobile, les filtres ne collent pas sous la barre et passent à la ligne. */
+@media (max-width: 760px) {
+  .filtres {
+    position: static;
+    flex-wrap: wrap;
+    overflow-x: visible;
+  }
+  .filtres .puce {
+    flex-shrink: 0;
+  }
 }
 
 .mois h2 {

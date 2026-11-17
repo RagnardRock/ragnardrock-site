@@ -40,10 +40,7 @@ const liens = [
   gap: 16px;
   padding: 8px 10px 8px 16px;
   border-radius: 999px;
-  background: rgba(14, 15, 22, 0.94);
-  backdrop-filter: blur(22px) saturate(140%);
-  -webkit-backdrop-filter: blur(22px) saturate(140%);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  background: rgba(14, 15, 22, 0.6);
 }
 
 .marque {
@@ -90,6 +87,16 @@ const liens = [
 .lien.router-link-active {
   background: var(--verre-fort);
   color: var(--texte-fort);
+}
+
+/* Sur mobile, la barre est presque opaque pour rester lisible pendant le défilement. */
+@media (max-width: 760px) {
+  .barre {
+    background: rgba(14, 15, 22, 0.94);
+    backdrop-filter: blur(22px) saturate(140%);
+    -webkit-backdrop-filter: blur(22px) saturate(140%);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  }
 }
 
 @media (max-width: 560px) {
