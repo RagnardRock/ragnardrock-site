@@ -299,3 +299,18 @@ html.pixel .bouton:hover {
 html.pixel img {
   image-rendering: pixelated;
 }
+
+/* Commande cachée « ragnarok » : le site tremble et s'embrase quelques secondes. */
+html.ragnarok body > #app > :not(.fond-terminal) {
+  animation: ragnarok-secousse 0.12s linear infinite;
+  filter: sepia(1) hue-rotate(-45deg) saturate(4) brightness(0.85);
+  transition: filter 0.6s;
+}
+
+@keyframes ragnarok-secousse {
+  0% { transform: translate(0, 0) rotate(0); }
+  25% { transform: translate(-3px, 2px) rotate(-0.3deg); }
+  50% { transform: translate(2px, -2px) rotate(0.2deg); }
+  75% { transform: translate(-2px, -1px) rotate(0.3deg); }
+  100% { transform: translate(0, 0) rotate(0); }
+}
