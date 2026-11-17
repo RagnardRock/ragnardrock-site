@@ -2,8 +2,7 @@
   <footer class="pied">
     <div class="interieur">
       <span class="rune runes" aria-hidden="true">ᚱᚨᚷᚾᚨᚱ</span>
-      <span>Fait main, avec Vue.</span>
-      <a href="https://github.com/RagnardRock/atelier" target="_blank" rel="noopener">Le code de l'Atelier</a>
+      <span>© {{ new Date().getFullYear() }} RagnardRock</span>
     </div>
   </footer>
 </template>
