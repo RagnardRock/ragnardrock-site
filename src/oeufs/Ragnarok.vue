@@ -405,133 +405,187 @@ function chaine(t, dt) {
 // --- Jörmungandr ---
 
 function trajet(s, R) {
-  // Un grand bond hors de l'eau, de gauche à droite, avec une ondulation.
+  // Un grand bond hors de l'eau, de gauche à droite, avec une lente ondulation.
+  const u = Math.min(1, Math.max(0, s));
   return {
     x: -R * 4 + s * (l + R * 8),
-    y: h + R * 2.2 - Math.sin(Math.min(1, Math.max(0, s)) * Math.PI) * h * 0.62 + Math.sin(s * 16) * R * 0.45,
+    y: h + R * 2.4 - Math.sin(u * Math.PI) * h * 0.6 + Math.sin(s * 9) * R * 0.5,
   };
 }
 
 function serpent(t, dt) {
-  const R = Math.min(70, Math.max(30, h * 0.07));
+  const R = Math.min(64, Math.max(28, h * 0.065));
   const tete = (t - SERPENT) / DUREE_SERPENT;
-  const N = 120;
-  const pas = 0.0065;
-  const corps = [];
-  for (let k = N; k >= 0; k--) corps.push({ ...trajet(tete - k * pas, R), k });
+  const N = 140;
+  const pas = 0.0055;
 
-  const rayon = (k) => R * Math.pow(1 - k / (N + 6), 0.55) + 3;
-  // D'abord la silhouette sombre de tout le corps, pour un contour net et continu.
-  ctx.fillStyle = '#06191a';
-  for (let i = 1; i < corps.length - 1; i++) {
-    const { x, y, k } = corps[i];
-    ctx.beginPath();
-    ctx.arc(x, y, rayon(k) + 2.5, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // Puis le corps, de la queue vers la tête : anneaux ombrés, écailles et crête dorsale.
-  for (let i = 1; i < corps.length - 1; i++) {
-    const { x, y, k } = corps[i];
-    const r = rayon(k);
-    const suiv = corps[i + 1];
-    const dir = Math.atan2(suiv.y - y, suiv.x - x);
-    // La crête, toujours du côté du ciel.
-    let nx = Math.cos(dir - Math.PI / 2);
-    let ny = Math.sin(dir - Math.PI / 2);
+  // L'échine, de la queue vers la tête, avec l'épaisseur et la direction du « ciel » à chaque point.
+  const echine = [];
+  for (let k = N; k >= 0; k--) echine.push({ ...trajet(tete - k * pas, R), u: k / N });
+  for (let i = 0; i < echine.length; i++) {
+    const a = echine[Math.max(0, i - 1)];
+    const b = echine[Math.min(echine.length - 1, i + 1)];
+    const dir = Math.atan2(b.y - a.y, b.x - a.x);
+    let nx = Math.sin(dir);
+    let ny = -Math.cos(dir);
     if (ny > 0) {
       nx = -nx;
       ny = -ny;
     }
-    if (k % 4 === 0) {
-      ctx.fillStyle = '#0a2420';
+    const p = echine[i];
+    p.dir = dir;
+    p.nx = nx;
+    p.ny = ny;
+    // Même épaisseur sur tout le corps, puis une queue qui s'effile sur le dernier tiers.
+    p.r = Math.max(2, R * Math.pow(Math.min(1, (1 - p.u) / 0.4), 0.85));
+  }
+
+  const trait = (decalage, largeur, couleur) => {
+    ctx.strokeStyle = couleur;
+    ctx.lineCap = 'round';
+    for (let i = 1; i < echine.length; i++) {
+      const a = echine[i - 1];
+      const b = echine[i];
+      ctx.lineWidth = largeur(b);
       ctx.beginPath();
-      ctx.moveTo(x + nx * r * 0.7 - Math.cos(dir) * r * 0.35, y + ny * r * 0.7 - Math.sin(dir) * r * 0.35);
-      ctx.lineTo(x + nx * r * 1.55, y + ny * r * 1.55);
-      ctx.lineTo(x + nx * r * 0.7 + Math.cos(dir) * r * 0.35, y + ny * r * 0.7 + Math.sin(dir) * r * 0.35);
-      ctx.fill();
-    }
-    const g = ctx.createRadialGradient(x + nx * r * 0.35, y + ny * r * 0.35, r * 0.1, x, y, r);
-    g.addColorStop(0, k % 6 < 3 ? '#4fc7a0' : '#43b593');
-    g.addColorStop(0.7, '#1f6656');
-    g.addColorStop(1, '#174c41');
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-    // Le ventre plus clair, du côté opposé à la crête.
-    if (k % 3 === 0) {
-      ctx.strokeStyle = 'rgba(200, 230, 170, 0.3)';
-      ctx.lineWidth = r * 0.16;
-      ctx.beginPath();
-      ctx.arc(x, y, r * 0.78, Math.atan2(-ny, -nx) - 0.6, Math.atan2(-ny, -nx) + 0.6);
+      ctx.moveTo(a.x + a.nx * decalage(a), a.y + a.ny * decalage(a));
+      ctx.lineTo(b.x + b.nx * decalage(b), b.y + b.ny * decalage(b));
       ctx.stroke();
     }
-    // Les gerbes d'eau là où le corps traverse la surface.
-    if (!calme && Math.abs(y - h) < r && Math.random() < dt * 25) {
-      for (let j = 0; j < 4; j++) gouttes.push({ x: x + hasard(-r, r), y: h, vx: hasard(-120, 120), vy: hasard(-520, -220), t: hasard(0.6, 1.1) });
+  };
+
+  // Les nageoires du dos, derrière le corps.
+  ctx.fillStyle = '#0b2e29';
+  for (let i = 4; i < echine.length - 6; i += 5) {
+    const p = echine[i];
+    if (p.r < 6) continue;
+    const cx = Math.cos(p.dir);
+    const cy = Math.sin(p.dir);
+    ctx.beginPath();
+    ctx.moveTo(p.x + p.nx * p.r * 0.6 - cx * p.r * 0.5, p.y + p.ny * p.r * 0.6 - cy * p.r * 0.5);
+    ctx.lineTo(p.x + p.nx * p.r * 1.55 + cx * p.r * 0.25, p.y + p.ny * p.r * 1.55 + cy * p.r * 0.25);
+    ctx.lineTo(p.x + p.nx * p.r * 0.6 + cx * p.r * 0.5, p.y + p.ny * p.r * 0.6 + cy * p.r * 0.5);
+    ctx.fill();
+  }
+
+  // Le corps : contour, teinte de base, ventre clair, reflet sur le dos.
+  trait(() => 0, (p) => p.r * 2 + 5, '#041513');
+  trait(() => 0, (p) => p.r * 2, '#1b5f51');
+  trait((p) => -p.r * 0.58, (p) => p.r * 0.55, 'rgba(160, 190, 140, 0.45)');
+  trait((p) => p.r * 0.38, (p) => p.r * 0.5, 'rgba(84, 205, 165, 0.35)');
+
+  // Les écailles : des chevrons sombres le long du corps.
+  ctx.strokeStyle = 'rgba(4, 30, 26, 0.3)';
+  for (let i = 3; i < echine.length - 2; i += 3) {
+    const p = echine[i];
+    if (p.r < 5) continue;
+    ctx.lineWidth = Math.max(1, p.r * 0.07);
+    const cx = Math.cos(p.dir) * p.r * 0.3;
+    const cy = Math.sin(p.dir) * p.r * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(p.x + p.nx * p.r * 0.8 - cx, p.y + p.ny * p.r * 0.8 - cy);
+    ctx.lineTo(p.x + p.nx * p.r * 0.1, p.y + p.ny * p.r * 0.1);
+    ctx.lineTo(p.x - p.nx * p.r * 0.6 - cx, p.y - p.ny * p.r * 0.6 - cy);
+    ctx.stroke();
+  }
+
+  // Les gerbes d'eau là où le corps traverse la surface.
+  if (!calme) {
+    for (let i = 0; i < echine.length; i += 6) {
+      const p = echine[i];
+      if (Math.abs(p.y - h) < p.r && Math.random() < dt * 20) {
+        for (let j = 0; j < 4; j++) gouttes.push({ x: p.x + hasard(-p.r, p.r), y: h, vx: hasard(-120, 120), vy: hasard(-520, -220), t: hasard(0.6, 1.1) });
+      }
     }
   }
 
-  // La tête.
-  const a = corps[corps.length - 2];
-  const b = corps[corps.length - 1];
-  const dir = Math.atan2(b.y - a.y, b.x - a.x);
-  const haut = Math.cos(dir) >= 0 ? 1 : -1; // garde le dessus de la tête vers le ciel
-  const gueule = 0.25 + 0.2 * Math.sin(t * 6);
+  // La tête, dans le prolongement du cou.
+  const b = echine[echine.length - 1];
+  const haut = Math.cos(b.dir) >= 0 ? 1 : -1; // garde le dessus de la tête vers le ciel
+  const gueule = 0.28 + 0.18 * Math.sin(t * 6);
   ctx.save();
   ctx.translate(b.x, b.y);
-  ctx.rotate(dir);
+  ctx.rotate(b.dir);
   ctx.scale(1, haut);
+  ctx.lineJoin = 'round';
   // Cornes vers l'arrière.
-  ctx.fillStyle = '#0a2420';
-  for (const [x0, l0] of [[-R * 0.3, R * 1.1], [R * 0.1, R * 0.8]]) {
+  ctx.fillStyle = '#0b2e29';
+  for (const [x0, lg, ht] of [[R * 0.1, R * 1.3, R * 1.15], [R * 0.55, R * 0.9, R * 0.95]]) {
     ctx.beginPath();
-    ctx.moveTo(x0, -R * 0.55);
-    ctx.lineTo(x0 - l0, -R * 1.25);
-    ctx.lineTo(x0 + R * 0.25, -R * 0.4);
+    ctx.moveTo(x0, -R * 0.6);
+    ctx.quadraticCurveTo(x0 - lg * 0.5, -ht, x0 - lg, -ht * 1.05);
+    ctx.lineTo(x0 + R * 0.3, -R * 0.45);
     ctx.fill();
   }
-  // Mâchoire inférieure, entrouverte.
+  // Mâchoire inférieure, qui s'ouvre et se referme.
   ctx.save();
-  ctx.translate(R * 0.2, R * 0.2);
+  ctx.translate(R * 0.5, R * 0.25);
   ctx.rotate(gueule);
-  ctx.fillStyle = '#123d35';
+  ctx.fillStyle = '#041513';
   ctx.beginPath();
-  ctx.moveTo(-R * 0.2, 0);
-  ctx.quadraticCurveTo(R * 1.1, R * 0.35, R * 1.75, R * 0.05);
-  ctx.lineTo(-R * 0.2, -R * 0.15);
+  ctx.moveTo(-R * 0.7, -R * 0.05);
+  ctx.quadraticCurveTo(R * 0.6, R * 0.55, R * 1.9, R * 0.02);
+  ctx.lineTo(-R * 0.7, -R * 0.3);
+  ctx.fill();
+  ctx.fillStyle = '#b0cd96';
+  ctx.beginPath();
+  ctx.moveTo(-R * 0.6, R * 0.02);
+  ctx.quadraticCurveTo(R * 0.6, R * 0.42, R * 1.75, R * 0.0);
+  ctx.lineTo(R * 1.6, -R * 0.06);
+  ctx.lineTo(-R * 0.6, -R * 0.12);
   ctx.fill();
   ctx.fillStyle = '#f2ead8';
   for (let i = 0; i < 4; i++) {
-    const fx = R * (0.35 + i * 0.32);
+    const fx = R * (0.1 + i * 0.38);
     ctx.beginPath();
-    ctx.moveTo(fx, -R * 0.02);
-    ctx.lineTo(fx + R * 0.08, -R * 0.24);
-    ctx.lineTo(fx + R * 0.16, -R * 0.02);
+    ctx.moveTo(fx, -R * 0.08);
+    ctx.lineTo(fx + R * 0.09, -R * (i === 0 ? 0.42 : 0.26));
+    ctx.lineTo(fx + R * 0.18, -R * 0.08);
     ctx.fill();
   }
   ctx.restore();
-  // Crâne et mâchoire supérieure.
-  const g = ctx.createLinearGradient(0, -R, 0, R * 0.4);
-  g.addColorStop(0, '#4fc7a0');
-  g.addColorStop(0.6, '#1c5f50');
-  g.addColorStop(1, '#0b2a25');
+  // Crâne et mâchoire supérieure : même hauteur que le cou à l'arrière, puis le museau qui s'affine.
+  const crane = () => {
+    ctx.beginPath();
+    ctx.moveTo(-R * 0.4, R);
+    ctx.lineTo(-R * 0.4, -R);
+    ctx.quadraticCurveTo(R * 0.5, -R * 1.05, R * 1.1, -R * 0.62);
+    ctx.quadraticCurveTo(R * 1.9, -R * 0.38, R * 2.45, R * 0.02);
+    ctx.quadraticCurveTo(R * 1.6, R * 0.3, R * 0.5, R * 0.32);
+    ctx.quadraticCurveTo(R * 0.1, R * 0.6, -R * 0.4, R);
+    ctx.closePath();
+  };
+  ctx.strokeStyle = '#041513';
+  ctx.lineWidth = 5;
+  crane();
+  ctx.stroke();
+  const g = ctx.createLinearGradient(0, -R, 0, R * 0.5);
+  g.addColorStop(0, '#54cda5');
+  g.addColorStop(0.45, '#1b5f51');
+  g.addColorStop(1, '#14493f');
   ctx.fillStyle = g;
-  ctx.beginPath();
-  ctx.moveTo(-R * 0.9, R * 0.3);
-  ctx.quadraticCurveTo(-R * 0.9, -R * 0.85, R * 0.3, -R * 0.7);
-  ctx.quadraticCurveTo(R * 1.6, -R * 0.5, R * 2.1, R * 0.05);
-  ctx.lineTo(R * 0.2, R * 0.25);
-  ctx.closePath();
+  crane();
   ctx.fill();
+  // Arcade sourcilière au-dessus de l'œil, et narine.
+  ctx.strokeStyle = 'rgba(4, 30, 26, 0.7)';
+  ctx.lineWidth = R * 0.08;
+  ctx.beginPath();
+  ctx.moveTo(R * 0.25, -R * 0.62);
+  ctx.quadraticCurveTo(R * 0.75, -R * 0.78, R * 1.15, -R * 0.5);
+  ctx.stroke();
+  ctx.fillStyle = '#041513';
+  ctx.beginPath();
+  ctx.ellipse(R * 2.05, -R * 0.12, R * 0.07, R * 0.04, 0.3, 0, Math.PI * 2);
+  ctx.fill();
+  // Dents du haut.
   ctx.fillStyle = '#f2ead8';
   for (let i = 0; i < 5; i++) {
-    const fx = R * (0.35 + i * 0.32);
+    const fx = R * (0.7 + i * 0.32);
+    const lg = i === 0 ? 0.42 : 0.24;
     ctx.beginPath();
-    ctx.moveTo(fx, R * 0.18);
-    ctx.lineTo(fx + R * 0.08, R * 0.42);
-    ctx.lineTo(fx + R * 0.16, R * 0.16);
+    ctx.moveTo(fx, R * 0.26 - i * R * 0.04);
+    ctx.lineTo(fx + R * 0.08, R * (0.26 + lg) - i * R * 0.04);
+    ctx.lineTo(fx + R * 0.17, R * 0.24 - i * R * 0.04);
     ctx.fill();
   }
   // L'œil, fendu, qui luit.
@@ -539,12 +593,12 @@ function serpent(t, dt) {
   ctx.shadowBlur = 18;
   ctx.fillStyle = '#ffd23a';
   ctx.beginPath();
-  ctx.ellipse(R * 0.55, -R * 0.32, R * 0.2, R * 0.12, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(R * 0.75, -R * 0.38, R * 0.2, R * 0.12, -0.15, 0, Math.PI * 2);
   ctx.fill();
   ctx.shadowBlur = 0;
   ctx.fillStyle = '#1a0d00';
   ctx.beginPath();
-  ctx.ellipse(R * 0.55, -R * 0.32, R * 0.04, R * 0.11, -0.2, 0, Math.PI * 2);
+  ctx.ellipse(R * 0.75, -R * 0.38, R * 0.045, R * 0.11, -0.15, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
 }
