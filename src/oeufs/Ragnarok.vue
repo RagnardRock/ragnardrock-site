@@ -468,45 +468,14 @@ function serpent(t, dt) {
     ctx.fill();
   }
 
-  // Le corps : contour, teinte de base, ventre clair, reflet sur le dos.
-  trait(() => 0, (p) => p.r * 2 + 5, '#041513');
-  trait(() => 0, (p) => p.r * 2, '#1b5f51');
-  trait((p) => -p.r * 0.58, (p) => p.r * 0.55, 'rgba(160, 190, 140, 0.45)');
-  trait((p) => p.r * 0.38, (p) => p.r * 0.5, 'rgba(84, 205, 165, 0.35)');
-
-  // Les écailles : des chevrons sombres le long du corps.
-  ctx.strokeStyle = 'rgba(4, 30, 26, 0.3)';
-  for (let i = 3; i < echine.length - 2; i += 3) {
-    const p = echine[i];
-    if (p.r < 5) continue;
-    ctx.lineWidth = Math.max(1, p.r * 0.07);
-    const cx = Math.cos(p.dir) * p.r * 0.3;
-    const cy = Math.sin(p.dir) * p.r * 0.3;
-    ctx.beginPath();
-    ctx.moveTo(p.x + p.nx * p.r * 0.8 - cx, p.y + p.ny * p.r * 0.8 - cy);
-    ctx.lineTo(p.x + p.nx * p.r * 0.1, p.y + p.ny * p.r * 0.1);
-    ctx.lineTo(p.x - p.nx * p.r * 0.6 - cx, p.y - p.ny * p.r * 0.6 - cy);
-    ctx.stroke();
-  }
-
-  // Les gerbes d'eau là où le corps traverse la surface.
-  if (!calme) {
-    for (let i = 0; i < echine.length; i += 6) {
-      const p = echine[i];
-      if (Math.abs(p.y - h) < p.r && Math.random() < dt * 20) {
-        for (let j = 0; j < 4; j++) gouttes.push({ x: p.x + hasard(-p.r, p.r), y: h, vx: hasard(-120, 120), vy: hasard(-520, -220), t: hasard(0.6, 1.1) });
-      }
-    }
-  }
-
-  // La tête, dans le prolongement du cou.
+  // La tête, dessinée avant le corps : le bout arrondi du cou la recouvre et la raccorde sans couture.
   const b = echine[echine.length - 1];
   const haut = Math.cos(b.dir) >= 0 ? 1 : -1; // garde le dessus de la tête vers le ciel
   const gueule = 0.28 + 0.18 * Math.sin(t * 6);
   ctx.save();
-  ctx.translate(b.x, b.y);
+  ctx.translate(b.x + Math.cos(b.dir) * R * 0.4, b.y + Math.sin(b.dir) * R * 0.4);
   ctx.rotate(b.dir);
-  ctx.scale(1, haut);
+  ctx.scale(1.3, 1.3 * haut); // une tête plus large que le cou, comme un vrai serpent
   ctx.lineJoin = 'round';
   // Cornes vers l'arrière.
   ctx.fillStyle = '#0b2e29';
@@ -547,12 +516,11 @@ function serpent(t, dt) {
   // Crâne et mâchoire supérieure : même hauteur que le cou à l'arrière, puis le museau qui s'affine.
   const crane = () => {
     ctx.beginPath();
-    ctx.moveTo(-R * 0.4, R);
-    ctx.lineTo(-R * 0.4, -R);
-    ctx.quadraticCurveTo(R * 0.5, -R * 1.05, R * 1.1, -R * 0.62);
-    ctx.quadraticCurveTo(R * 1.9, -R * 0.38, R * 2.45, R * 0.02);
-    ctx.quadraticCurveTo(R * 1.6, R * 0.3, R * 0.5, R * 0.32);
-    ctx.quadraticCurveTo(R * 0.1, R * 0.6, -R * 0.4, R);
+    ctx.moveTo(-R * 0.7, -R * 0.9);
+    ctx.quadraticCurveTo(R * 0.3, -R * 1.0, R * 1.05, -R * 0.66);
+    ctx.quadraticCurveTo(R * 1.85, -R * 0.36, R * 2.4, R * 0.02);
+    ctx.quadraticCurveTo(R * 1.5, R * 0.3, R * 0.6, R * 0.36);
+    ctx.quadraticCurveTo(R * 0.0, R * 0.45, -R * 0.7, R * 0.9);
     ctx.closePath();
   };
   ctx.strokeStyle = '#041513';
@@ -560,8 +528,8 @@ function serpent(t, dt) {
   crane();
   ctx.stroke();
   const g = ctx.createLinearGradient(0, -R, 0, R * 0.5);
-  g.addColorStop(0, '#54cda5');
-  g.addColorStop(0.45, '#1b5f51');
+  g.addColorStop(0, '#3a9f84');
+  g.addColorStop(0.5, '#1b5f51');
   g.addColorStop(1, '#14493f');
   ctx.fillStyle = g;
   crane();
@@ -601,6 +569,38 @@ function serpent(t, dt) {
   ctx.ellipse(R * 0.75, -R * 0.38, R * 0.045, R * 0.11, -0.15, 0, Math.PI * 2);
   ctx.fill();
   ctx.restore();
+
+  // Le corps : contour, teinte de base, ventre clair, reflet sur le dos.
+  trait(() => 0, (p) => p.r * 2 + 5, '#041513');
+  trait(() => 0, (p) => p.r * 2, '#1b5f51');
+  trait((p) => -p.r * 0.58, (p) => p.r * 0.55, 'rgba(160, 190, 140, 0.45)');
+  trait((p) => p.r * 0.38, (p) => p.r * 0.5, 'rgba(84, 205, 165, 0.35)');
+
+  // Les écailles : des chevrons sombres le long du corps.
+  ctx.strokeStyle = 'rgba(4, 30, 26, 0.3)';
+  for (let i = 3; i < echine.length - 2; i += 3) {
+    const p = echine[i];
+    if (p.r < 5) continue;
+    ctx.lineWidth = Math.max(1, p.r * 0.07);
+    const cx = Math.cos(p.dir) * p.r * 0.3;
+    const cy = Math.sin(p.dir) * p.r * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(p.x + p.nx * p.r * 0.8 - cx, p.y + p.ny * p.r * 0.8 - cy);
+    ctx.lineTo(p.x + p.nx * p.r * 0.1, p.y + p.ny * p.r * 0.1);
+    ctx.lineTo(p.x - p.nx * p.r * 0.6 - cx, p.y - p.ny * p.r * 0.6 - cy);
+    ctx.stroke();
+  }
+
+  // Les gerbes d'eau là où le corps traverse la surface.
+  if (!calme) {
+    for (let i = 0; i < echine.length; i += 6) {
+      const p = echine[i];
+      if (Math.abs(p.y - h) < p.r && Math.random() < dt * 20) {
+        for (let j = 0; j < 4; j++) gouttes.push({ x: p.x + hasard(-p.r, p.r), y: h, vx: hasard(-120, 120), vy: hasard(-520, -220), t: hasard(0.6, 1.1) });
+      }
+    }
+  }
+
 }
 
 function dessinerGouttes(dt) {
