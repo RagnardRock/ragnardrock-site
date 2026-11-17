@@ -25,7 +25,7 @@ export const OUTILS = [
     prefixe: 'atelier-v',
     accroche: 'Le hub qui installe, lance et met à jour tous les outils.',
     description:
-      'Atelier est la porte d\'entrée : il installe chaque outil en un clic, prévient des mises à jour, et garde sous la main des widgets du quotidien (notes, projets récents, couleurs, minuteurs, calendrier, calculatrice).',
+      'Atelier installe chaque outil en un clic, prévient des mises à jour, et garde sous la main des widgets du quotidien (notes, projets récents, couleurs, minuteurs, calendrier, calculatrice).',
     points: [
       'Installe, met à jour et désinstalle les outils',
       'Widgets : notes, projets, presse-papiers, minuteurs, calendrier',
@@ -46,7 +46,7 @@ export const OUTILS = [
     prefixe: 'rune-v',
     accroche: 'IDE : code, terminal, Git, serveurs et aperçu web.',
     description:
-      'Un éditeur de code taillé pour le web : Monaco, Vue, Emmet et Prettier, un terminal et des connexions SSH aux serveurs, Git intégré, et un aperçu qui se met à jour pendant la frappe.',
+      'Un éditeur de code taillé pour le web : Monaco, Vue, Emmet et Prettier, un terminal et des connexions SSH aux serveurs, Git intégré, et aperçu live.',
     points: [
       'Monaco avec Vue, Emmet et Prettier',
       'Terminal, serveurs SSH et explorateur distant',
@@ -68,10 +68,10 @@ export const OUTILS = [
     prefixe: 'skald-v',
     accroche: 'Retouche d\'images et de logos, compatible PSD.',
     description:
-      'La retouche du quotidien sans quitter l\'Atelier : calques, sélections, retrait de fond, texte et transformations, avec ouverture et enregistrement des PSD.',
+      'Calques, sélections, retrait de fond, texte et transformations, avec ouverture et enregistrement des PSD.',
     points: [
-      'Calques, calques de réglage, 17 modes de fusion',
-      'Sélections rectangle, lasso, baguette magique',
+      'Calques, calques de réglage, modes de fusion',
+      'Divers outils de sélection',
       'Retrait de fond et recadrage',
       'Ouvre et enregistre les PSD',
     ],
