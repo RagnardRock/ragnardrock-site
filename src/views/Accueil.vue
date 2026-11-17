@@ -37,8 +37,8 @@ const traduit = ref(false);
         </span>
       </h1>
       <p class="chapeau">
-        Mon site, pour présenter mes projets : l'Atelier, une suite d'outils faits main, et Ansuz, le carnet culturel
-        partagé.
+        Mes projets, au même endroit. L'Atelier rassemble mes outils de création, du code au jeu vidéo. Ansuz garde la
+        trace de tout ce qu'on lit, regarde, écoute et joue.
       </p>
     </section>
 
