@@ -155,9 +155,22 @@ function couleur(i) {
   transition-delay: calc(360ms + var(--i) * 15ms);
 }
 
+/* Les runes s'étalent sur toute la largeur du mot latin, pour que les deux occupent la même place. */
+.ligne.runes-nom {
+  justify-content: space-between;
+}
+
 .ligne.runes-nom > span {
   font-weight: 700;
-  padding: 0 0.04em;
+}
+
+/* Les runes ᚱ et ᚲ ont des marges internes plus larges que R et k : on les compense aux deux bouts. */
+.ligne.runes-nom > span:first-child {
+  margin-left: -0.02em;
+}
+
+.ligne.runes-nom > span:last-child {
+  margin-right: -0.1em;
 }
 
 .ligne.latin {
