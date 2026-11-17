@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { OUTILS, outil, degrade } from '../data/outils.js';
 import { etat } from '../data/releases.js';
 import NoteVersion from '../components/NoteVersion.vue';
@@ -8,19 +8,37 @@ import IconeOutil from '../components/IconeOutil.vue';
 const recentes = computed(() => etat.releases.slice(0, 6));
 const atelier = outil('atelier');
 const icones = OUTILS.filter((o) => o.id !== 'atelier');
+
+// Le nom en runes, lettre par lettre : au survol (ou au toucher), chaque rune devient sa lettre.
+const NOM = [
+  ['ᚱ', 'R'], ['ᚨ', 'a'], ['ᚷ', 'g'], ['ᚾ', 'n'], ['ᚨ', 'a'], ['ᚱ', 'r'], ['ᛞ', 'd'],
+  ['ᚱ', 'R'], ['ᛟ', 'o'], ['ᚲ', 'c'], ['ᚲ', 'k'],
+];
+const traduit = ref(false);
 </script>
 
 <template>
   <main class="page large">
     <section class="accroche">
       <span class="surtitre">Développeur web</span>
-      <h1>
-        Je fabrique mes propres outils,<br />
-        <span class="degrade">et des jeux avec.</span>
+      <h1
+        class="nom"
+        :class="{ traduit }"
+        aria-label="RagnardRock"
+        @mouseenter="traduit = true"
+        @mouseleave="traduit = false"
+        @click="traduit = !traduit"
+      >
+        <span class="ligne runes-nom" aria-hidden="true">
+          <span v-for="([r], i) in NOM" :key="i" class="rune" :style="{ '--i': i }">{{ r }}</span>
+        </span>
+        <span class="ligne latin" aria-hidden="true">
+          <span v-for="([, l], i) in NOM" :key="i" :style="{ '--i': i }">{{ l }}</span>
+        </span>
       </h1>
       <p class="chapeau">
-        Un IDE, de la retouche d'images, un éditeur de jeu, un tableur… tous faits main, en français, en mode sombre.
-        Et Ansuz, le carnet culturel partagé.
+        Mon site, pour présenter mes projets : l'Atelier, une suite d'outils faits main, et Ansuz, le carnet culturel
+        partagé.
       </p>
     </section>
 
@@ -73,11 +91,66 @@ const icones = OUTILS.filter((o) => o.id !== 'atelier');
   padding: clamp(40px, 10vh, 120px) 0 clamp(32px, 6vh, 64px);
 }
 
-.degrade {
+.nom {
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  letter-spacing: 0;
+  cursor: default;
+  user-select: none;
   background: linear-gradient(120deg, #b4f5a2, #3fc6d0 45%, #9b6bff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* Le nom en runes et le nom en lettres sont superposés ; chaque signe passe de l'un à l'autre
+   avec un petit décalage, de gauche à droite. */
+.nom {
+  display: grid;
+}
+
+.ligne {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: baseline;
+}
+
+.ligne > span {
+  display: inline-block;
+  background: inherit;
+  -webkit-background-clip: text;
+  background-clip: text;
+  transition: opacity 0.35s, transform 0.35s, filter 0.35s;
+  transition-delay: calc(var(--i) * 35ms);
+}
+
+.ligne.runes-nom > span {
+  font-weight: 700;
+  padding: 0 0.04em;
+}
+
+.ligne.latin {
+  font-weight: 750;
+  letter-spacing: -0.03em;
+}
+
+.ligne.latin > span {
+  opacity: 0;
+  transform: translateY(0.25em);
+  filter: blur(6px);
+}
+
+.traduit .runes-nom > span {
+  opacity: 0;
+  transform: translateY(-0.25em);
+  filter: blur(6px);
+}
+
+.traduit .latin > span {
+  opacity: 1;
+  transform: none;
+  filter: none;
 }
 
 .projets {
