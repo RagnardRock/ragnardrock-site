@@ -8,6 +8,7 @@ import { oeufs } from './oeufs/oeufs.js';
 // Chargés seulement quand quelqu'un les découvre.
 const Terminal = defineAsyncComponent(() => import('./oeufs/Terminal.vue'));
 const PluieRunes = defineAsyncComponent(() => import('./oeufs/PluieRunes.vue'));
+const Ragnarok = defineAsyncComponent(() => import('./oeufs/Ragnarok.vue'));
 </script>
 
 <template>
@@ -17,4 +18,5 @@ const PluieRunes = defineAsyncComponent(() => import('./oeufs/PluieRunes.vue'));
   <PiedPage />
   <Terminal v-if="oeufs.terminal" />
   <PluieRunes v-if="oeufs.jeu" />
+  <Ragnarok v-if="oeufs.ragnarok" />
 </template>

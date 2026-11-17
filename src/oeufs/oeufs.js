@@ -3,7 +3,7 @@
 // - la touche ² (en haut à gauche du clavier) ouvre un terminal ;
 // - la commande « pixel » du terminal passe le site en mode pixel.
 // Sur mobile, toucher cinq fois les runes du pied de page ouvre le terminal.
-import { reactive, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 
 const CLE_PIXEL = 'mode-pixel';
 
@@ -28,7 +28,14 @@ export const oeufs = reactive({
   jeu: false,
   terminal: false,
   pixel: lire(CLE_PIXEL) === '1',
+  ragnarok: false,
 });
+
+// Ce que le terminal a affiché : il le retrouve quand on le rouvre.
+export const journal = ref([
+  { t: 'ᚱᚨᚷᚾᚨᚱᛞᚱᛟᚲᚲ', c: 'runes' },
+  { t: 'Terminal de ragnardrock.fr. Tape « aide » pour voir les commandes.', c: 'discret' },
+]);
 
 // La police pixel n'est chargée que si quelqu'un en a besoin.
 let policePixel = null;
@@ -49,14 +56,14 @@ function touche(e) {
   if (e.ctrlKey || e.metaKey || e.altKey) return;
 
   // ² sur un clavier AZERTY, ` sur un QWERTY : c'est la même touche physique.
-  if (e.code === 'Backquote' && !oeufs.jeu) {
+  if (e.code === 'Backquote' && !oeufs.jeu && !oeufs.ragnarok) {
     if (dansUnChamp(e.target) && !oeufs.terminal) return;
     e.preventDefault();
     oeufs.terminal = !oeufs.terminal;
     return;
   }
 
-  if (oeufs.jeu || oeufs.terminal || dansUnChamp(e.target)) return;
+  if (oeufs.jeu || oeufs.terminal || oeufs.ragnarok || dansUnChamp(e.target)) return;
   const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
   pas = k === KONAMI[pas] ? pas + 1 : k === KONAMI[0] ? 1 : 0;
   if (pas === KONAMI.length) {
