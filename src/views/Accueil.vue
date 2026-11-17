@@ -121,6 +121,9 @@ function couleur(i) {
    avec un petit décalage, de gauche à droite. */
 .nom {
   display: grid;
+  /* Les deux polices (runes et latin) n'ont pas les mêmes proportions : alignées par le haut,
+     les runes flottaient plus haut. On cale les deux lignes sur la même ligne de base. */
+  align-items: baseline;
 }
 
 .ligne {
