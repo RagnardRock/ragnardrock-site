@@ -4,16 +4,13 @@ import { nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { OUTILS, outil } from '../data/outils.js';
 import { derniere, versionDe, dateLisible } from '../data/releases.js';
-import { enRunes, oeufs } from './oeufs.js';
+import { enRunes, journal, oeufs } from './oeufs.js';
 
 const router = useRouter();
 const saisie = ref('');
 const champ = ref(null);
 const sortie = ref(null);
-const lignes = ref([
-  { t: 'ᚱᚨᚷᚾᚨᚱᛞᚱᛟᚲᚲ', c: 'runes' },
-  { t: 'Terminal de ragnardrock.fr. Tape « aide » pour voir les commandes.', c: 'discret' },
-]);
+const lignes = journal; // gardé entre deux ouvertures du terminal
 const historique = [];
 let position = 0;
 
@@ -132,24 +129,10 @@ function oracle() {
   });
 }
 
-// La fin du monde, en version courte.
-let enCours = false;
+// La fin du monde : le terminal se ferme et laisse la place à la séquence plein écran (Ragnarok.vue).
 function ragnarok() {
-  if (enCours) return dire('Patience, le monde n\'a pas fini de brûler.', 'erreur');
-  enCours = true;
-  const etapes = [
-    [0, 'Le cor Gjallarhorn retentit…', 'erreur'],
-    [900, 'Fenrir brise sa chaîne.', 'erreur'],
-    [1700, 'Le serpent du monde sort des eaux.', 'erreur'],
-    [2500, 'ᚱᚨᚷᚾᚨᚱᛟᚲ', 'runes grande'],
-  ];
-  for (const [t, texte, c] of etapes) plusTard(t, () => dire(texte, c));
-  plusTard(2500, () => document.documentElement.classList.add('ragnarok'));
-  plusTard(5000, () => {
-    document.documentElement.classList.remove('ragnarok');
-    dire('… et le monde renaît, vert et neuf. Le site aussi.', 'discret');
-    enCours = false;
-  });
+  oeufs.terminal = false;
+  oeufs.ragnarok = true;
 }
 
 const minuteurs = new Set();
@@ -218,8 +201,6 @@ onMounted(() => {
 onBeforeUnmount(() => {
   // Le terminal se ferme : les effets en cours s'arrêtent avec lui.
   for (const id of minuteurs) clearTimeout(id);
-  document.documentElement.classList.remove('ragnarok');
-  enCours = false;
   avant?.focus?.();
 });
 </script>
