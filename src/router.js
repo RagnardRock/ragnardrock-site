@@ -9,6 +9,7 @@ const routes = [
   { path: '/atelier/:id', component: () => import('./views/Outil.vue') },
   { path: '/nouveautes', component: () => import('./views/Nouveautes.vue'), meta: { titre: `Nouveautés · ${NOM}` } },
   { path: '/ansuz', component: () => import('./views/Ansuz.vue'), meta: { titre: `Ansuz · ${NOM}` } },
+  { path: '/bifrost', component: () => import('./views/Bifrost.vue'), meta: { titre: `Bifrost · ${NOM}` } },
   { path: '/:chemin(.*)*', component: () => import('./views/Introuvable.vue'), meta: { titre: `Introuvable · ${NOM}` } },
 ];
 

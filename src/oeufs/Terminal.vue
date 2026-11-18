@@ -14,7 +14,7 @@ const lignes = journal; // gardé entre deux ouvertures du terminal
 const historique = [];
 let position = 0;
 
-const PAGES = { '~': '/', accueil: '/', atelier: '/atelier', nouveautes: '/nouveautes', ansuz: '/ansuz' };
+const PAGES = { '~': '/', accueil: '/', atelier: '/atelier', nouveautes: '/nouveautes', ansuz: '/ansuz', bifrost: '/bifrost' };
 
 const COMMANDES = {
   aide: {
