@@ -3,6 +3,7 @@ const liens = [
   { to: '/atelier', texte: 'Atelier' },
   { to: '/nouveautes', texte: 'Nouveautés' },
   { to: '/ansuz', texte: 'Ansuz' },
+  { to: '/bifrost', texte: 'Bifrost' },
 ];
 </script>
 

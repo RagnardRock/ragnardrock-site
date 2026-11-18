@@ -55,7 +55,7 @@ function couleur(i) {
       </h1>
       <p class="chapeau">
         Mes projets, au même endroit. L'Atelier rassemble mes outils de création, du code au jeu vidéo. Ansuz garde la
-        trace de tout ce qu'on lit, regarde, écoute et joue.
+        trace de tout ce qu'on lit, regarde, écoute et joue. Bifrost permet à mes clients de modifier leur site eux-mêmes.
       </p>
     </section>
 
@@ -70,7 +70,7 @@ function couleur(i) {
         </div>
         <p>Dix outils pour le web, le graphisme, la bureautique et le jeu vidéo, avec un assistant commun, Loki.</p>
         <div class="mini-icones">
-          <img v-for="o in icones" :key="o.id" :src="`/icones/${o.id}.svg`" :alt="o.nom" :title="o.nom" width="34" height="34" />
+          <img v-for="o in icones" :key="o.id" :src="`/icones/${o.id}.svg`" :alt="o.nom" :title="o.nom" width="30" height="30" />
         </div>
         <span class="rune filigrane" aria-hidden="true">ᚨ</span>
       </RouterLink>
@@ -86,6 +86,19 @@ function couleur(i) {
         <p>Le carnet culturel partagé : livres, mangas, films, séries, musique et jeux vidéo, notés et commentés entre amis.</p>
         <span class="lien-flèche">ansuz.media →</span>
         <span class="rune filigrane" aria-hidden="true">ᚨ</span>
+      </RouterLink>
+
+      <RouterLink to="/bifrost" class="projet verre bifrost">
+        <div class="projet-haut">
+          <span class="rune pastille" aria-hidden="true">ᛒ</span>
+          <div>
+            <span class="surtitre">CMS · en bêta</span>
+            <h2>Bifrost</h2>
+          </div>
+        </div>
+        <p>L'édition sur place pour les sites de mes clients : on clique sur un texte ou une photo, on le change, on publie.</p>
+        <span class="lien-flèche">bifrost.ragnardrock.fr →</span>
+        <span class="rune filigrane" aria-hidden="true">ᛒ</span>
       </RouterLink>
     </section>
 
@@ -198,7 +211,7 @@ function couleur(i) {
 
 .projets {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
   gap: 20px;
 }
 
@@ -243,7 +256,7 @@ function couleur(i) {
 .mini-icones {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
   margin-top: auto;
 }
 
@@ -255,17 +268,23 @@ function couleur(i) {
   border-radius: 16px;
   font-size: 34px;
   color: #fff;
-  background: linear-gradient(135deg, #f0b44c, #b8641c);
+  background: var(--degrade);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4);
 }
 
 .ansuz {
   --degrade: linear-gradient(135deg, #f0b44c, #b8641c);
+  --lien: #f0b44c;
+}
+
+.bifrost {
+  --degrade: linear-gradient(135deg, #8b5cf6, #e07a4a);
+  --lien: #b79bff;
 }
 
 .lien-flèche {
   margin-top: auto;
-  color: #f0b44c;
+  color: var(--lien);
   font-weight: 600;
 }
 
