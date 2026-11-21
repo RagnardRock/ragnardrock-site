@@ -54,8 +54,8 @@ function couleur(i) {
         </span>
       </h1>
       <p class="chapeau">
-        Mes projets, au même endroit. L'Atelier rassemble mes outils de création, du code au jeu vidéo. Ansuz garde la
-        trace de tout ce qu'on lit, regarde, écoute et joue. Bifrost permet à mes clients de modifier leur site eux-mêmes.
+        Mes projets, au même endroit. L'Atelier rassemble mes outils de création, du code au jeu vidéo en passant par le graphisme. Ansuz garde la
+        trace de tout ce qu'on lit, regarde, écoute et joue. Bifrost fait le pont entre mes sites et mes clients, qui les tiennent à jour sans toucher au code.
       </p>
     </section>
 
