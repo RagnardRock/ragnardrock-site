@@ -52,6 +52,7 @@ export const OUTILS = [
       'Terminal, serveurs SSH et explorateur distant',
       'Git intégré et historique des fichiers',
       'Aperçu web en direct et Go Live',
+      'Panneau Bifrost : marqueurs, modifs des clients, envoi en ligne',
     ],
     captures: [
       { fichier: '1-verre.webp', legende: 'Le thème verre, le terminal en bas' },

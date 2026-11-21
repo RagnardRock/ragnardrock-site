@@ -1,9 +1,26 @@
 <script setup>
-const points = [
-  'Le client modifie son site en cliquant directement sur un texte ou une photo',
-  'Le développeur marque les zones modifiables dans son HTML, sans schéma à écrire',
-  'La publication réécrit des pages statiques : rapides et bien référencées',
-  'Comptes par personne, rôles, historique et retour à une version précédente',
+const groupes = [
+  {
+    titre: 'Pour le client',
+    points: [
+      'Il modifie son site en cliquant sur un texte ou une photo',
+      'Son espace « Mon site » : messages du formulaire, équipe, réglages',
+      'Double authentification, avec codes de secours',
+    ],
+  },
+  {
+    titre: 'Pour le développeur',
+    points: [
+      'Les zones modifiables se marquent dans le HTML, sans schéma',
+      'Mode dev visuel : des sections à glisser depuis une bibliothèque de blocs',
+      'Gestion des clients : fiches, contrats, pause, export, corbeille',
+      'Lié à Rune : vérifier les marqueurs, récupérer les modifs du client, envoyer en ligne',
+    ],
+  },
+  {
+    titre: 'Pour tout le monde',
+    points: ['Des pages statiques, rapides et bien référencées', 'Historique et retour à une version précédente'],
+  },
 ];
 </script>
 
@@ -18,9 +35,12 @@ const points = [
         Je fais le site, mes clients le tiennent à jour eux-mêmes : actualités, photos, horaires. Bifrost est en bêta avec
         mes premiers sites clients.
       </p>
-      <ul class="points">
-        <li v-for="p in points" :key="p">{{ p }}</li>
-      </ul>
+      <div v-for="g in groupes" :key="g.titre" class="groupe">
+        <h2>{{ g.titre }}</h2>
+        <ul class="points">
+          <li v-for="p in g.points" :key="p">{{ p }}</li>
+        </ul>
+      </div>
       <a href="https://bifrost.ragnardrock.fr/" class="bouton plein" target="_blank" rel="noopener">Ouvrir Bifrost →</a>
     </section>
   </main>
@@ -64,10 +84,23 @@ const points = [
   font-size: 1.15rem;
 }
 
+.groupe h2 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--discret);
+  margin: 24px 0 4px;
+}
+
+.groupe:last-of-type {
+  margin-bottom: 28px;
+}
+
 .points {
   list-style: none;
   padding: 0;
-  margin: 8px 0 28px;
+  margin: 0;
 }
 
 .points li {
